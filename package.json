@@ -1,0 +1,40 @@
+{
+  "name": "sonic-intelligence-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.11.0"
+  },
+  "volta": {
+    "node": "24.15.0",
+    "pnpm": "10.11.0"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.70",
+    "@ai-sdk/react": "^3.0.178",
+    "@tailwindcss/postcss": "^4.2.4",
+    "ai": "^6.0.176",
+    "lucide-react": "^1.14.0",
+    "next": "^16.2.6",
+    "next-auth": "^4.24.14",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/next-auth": "^3.13.0",
+    "@types/node": "^25.6.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3"
+  }
+}
