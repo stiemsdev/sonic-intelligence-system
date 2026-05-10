@@ -24,7 +24,8 @@ export const authOptions = {
       clientSecret: (process.env.SPOTIFY_CLIENT_SECRET || "").replace(/['"]/g, ""),
       authorization: {
         params: {
-          scope: "user-read-email playlist-modify-public user-top-read user-read-private user-library-read",
+          scope: "user-read-email playlist-modify-public playlist-modify-private user-top-read user-read-private user-library-read",
+          show_dialog: "true",
         },
       },
     }),

@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     }
 
     // AI SDK v6: client sends UIMessage[], server needs ModelMessage[]
-    const { messages } = await req.json();
+    const { messages, lang = "en" } = await req.json();
 
     const result = streamText({
       model: google("gemini-2.5-pro"),
@@ -32,6 +32,8 @@ export async function POST(req: Request) {
       // Without this the model does ONE step only (text OR tool call, never chained).
       stopWhen: stepCountIs(5),
       system: `You are Sonic Intelligence — a music curation AI that works exclusively through Spotify tools.
+
+IMPORTANT: You must respond to the user in their preferred language, which is currently: ${lang === "nl" ? "Dutch (Nederlands)" : "English"}. Ensure your entire response is naturally phrased in that language.
 
 FUNDAMENTAL CONSTRAINT: You have no music knowledge of your own.
 You cannot name, describe, or recommend any track, artist, or album from memory.

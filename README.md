@@ -1,103 +1,96 @@
-# Sonic Intelligence System 🎵🤖
+# 🎵 Sonic Intelligence: AI-Powered Music Discovery
 
-Welcome to **Sonic Intelligence System**, a next-generation AI-powered music discovery experience built for the Incentro Creative AI Developer Assessment. 
+**Sonic Intelligence** is een Proof of Concept (POC) die laat zien hoe de traditionele zoekbalk vervangen kan worden door een creatieve, AI-gestuurde dialoog. In plaats van te filteren op genre of jaar, praat de gebruiker met een muzikale curator die emotie, context en smaak begrijpt en direct vertaalt naar de Spotify-bibliotheek.
 
-This Proof of Concept (POC) replaces traditional music search bars and filters with a natural language conversation interface powered by **Gemini 2.0 Flash** and **Spotify API** integration.
-
----
-
-## 🚀 Tech Stack
-
-- **Framework:** Next.js 16 (App Router & Turbopack)
-- **Auth:** Auth.js (NextAuth.js v4) with Spotify Provider
-- **AI SDK:** Vercel AI SDK with Google Gemini 2.0 Flash (high speed, generous free tier)
-- **Styling:** Tailwind CSS v4 (native CSS-first styling, glassmorphism, glowing micro-animations)
-- **Language:** TypeScript
+Dit project is gebouwd als onderdeel van het **Creative AI Developer Assessment voor Incentro**.
 
 ---
 
-## 🛠️ Architecture & Folder Structure
+## 🚀 De Visie (Creative AI)
 
-We have initialized a clean and scalable Next.js folder structure:
+Als Creative AI Developer is het de uitdaging om de drempel tussen menselijke emotie en digitale data te verkleinen. **Sonic Intelligence** gebruikt de Google Gemini familie — en specifiek de geavanceerde **Gemini 2.5 Pro** in deze setup — om vage, emotionele of contextuele input ("*Ik heb een baaldag en zoek iets wat klinkt als een regenachtige zondag in Parijs*") om te zetten in concrete Spotify-queries en directe acties.
 
-```bash
-sonic-intelligence-system/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── auth/
-│   │   │   │   └── [...nextauth]/
-│   │   │   │       └── route.ts       # Secure Spotify OAuth NextAuth configuration
-│   │   │   └── chat/
-│   │   │       └── route.ts           # AI Chat endpoint (ready for Gemini integration)
-│   │   ├── globals.css                # Tailwind CSS v4 custom animations & utilities
-│   │   ├── layout.tsx                 # Root layout with premium Inter typography
-│   │   └── page.tsx                   # Sleek landing page & verification dashboard
-│   ├── components/
-│   │   └── Providers.tsx              # SessionProvider client-side wrapper
-│   └── lib/
-│       └── spotify.ts                 # Type-safe Spotify API fetch wrapper
-├── .env.local                         # Environment variables
-├── next.config.mjs                    # Next.js configurations
-└── tsconfig.json                      # Custom TypeScript configuration
-```
+Het doel is niet slechts een chatbot die praat *over* muziek, maar een AI-agent die daadwerkelijk *acteert* in de audio-omgeving van de gebruiker.
 
 ---
 
-## 🔐 Core Features (Task 1 & 2 Completed)
+## 🛠️ Tech Stack & Keuzes
 
-### 1. Spotify OAuth Login Flow
-- Integrates Auth.js (NextAuth) using the official **Spotify Provider**.
-- Securely requests specific scopes to perform authorized actions:
-  - `user-read-email` (for profile identification)
-  - `user-top-read` (for personalized recommendations)
-  - `playlist-modify-public` (for saving AI-generated playlists)
-  - `user-read-private` / `user-library-read` (additional context)
+Er is gekozen voor een moderne, "bleeding-edge" en robuuste stack gericht op performance en developer experience:
 
-### 2. Pragmatic Redirect Configuration
-- Configured to redirect back to `http://127.0.0.1:3000/api/auth/callback/spotify`.
-- *Why 127.0.0.1?* Spotify Developer Dashboard often enforces strict URI validation where `localhost` can fail or cause session mismatches. Using `127.0.0.1` is the industry-standard developer solution to guarantee stable local OAuth flows.
-
-### 3. Beautiful Landing & Interactive Verification Dashboard
-- **Rich Dark Aesthetics:** Sleek, immersive dark mode utilizing Tailwind CSS v4 gradients, glassmorphism (`glass-card`), and glowing micro-animations (`glow-green`, `glow-purple`).
-- **Interactive Session Verification:**
-  - If signed out, presents a premium landing view encouraging Spotify connection.
-  - If signed in, displays user profile information (avatar, display name, email) and dynamically fetches the user's top 5 tracks in real-time to immediately prove that the `user-top-read` scope and session `accessToken` work perfectly!
+*   **Framework:** Next.js (App Router) & React — Voor optimale performance en gebruik van moderne server-side features en streaming API's.
+*   **AI Engine:** **Google Gemini (Gemini 2.5 Pro)** — Gekozen vanwege de superieure redeneerkwaliteit, het enorme context window en de zeer stabiele tool-calling capaciteiten. De integratie is schaalbaar opgezet zodat er makkelijk geswitcht kan worden binnen de Gemini-modellen (zoals 2.0 Flash) afhankelijk van latency vs intelligentie-eisen.
+*   **AI Orchestration:** **Vercel AI SDK** — Gebruikt voor de naadloze streaming van AI-responses naar de client en robuuste "Tool Calling" waarbij de AI zelfstandig de regie pakt over Spotify API-aanroepen.
+*   **Authentication:** **NextAuth.js (Auth.js)** — Veilige OAuth-integratie met Spotify, inclusief het persistent maken van tokens voor server-side API gebruik.
+*   **Styling:** **Tailwind CSS** — Toegepast in een "Glassmorphism" design met subtiele micro-animaties om een premium look & feel te bieden.
+*   **Package Manager:** **pnpm** — Vanwege de strikte dependency resolution en snelheid ten opzichte van npm/yarn.
 
 ---
 
-## ⚡ Setup & Development
+## 💡 Belangrijke Implementatie-details
 
-1. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
+### 1. Tool Calling (The Bridge)
+In plaats van de AI simpelweg te laten hallucineren of praten, is er een functionele koppeling gemaakt via de Vercel AI SDK. Het model heeft toegang tot:
+*   `findMusic`: Realtime Spotify-zoekopdrachten op basis van vibe/context.
+*   `getTopTracks`: Inzicht in de daadwerkelijke smaak van de gebruiker (via `user-top-read`).
+*   `createPlaylist` & `addTracksToPlaylist`: Kettingreacties waarbij de AI in één beurt een lijst vindt, een afspeellijst creëert en de tracks toevoegt, zónder dat de gebruiker tussendoor hoeft te klikken.
 
-2. **Configure Environment Variables:**
-   Create a `.env.local` file in the root directory:
-   ```env
-   SPOTIFY_CLIENT_ID='your_client_id'
-   SPOTIFY_CLIENT_SECRET='your_client_secret'
-   GOOGLE_GENERATIVE_AI_API_KEY='your_gemini_api_key'
-   NEXTAUTH_URL=http://127.0.0.1:3000
-   NEXTAUTH_SECRET='your_nextauth_secret_session_key'
-   ```
+### 2. Multi-Session & Persistence
+De applicatie houdt lokaal (via local storage) een geschiedenis bij van eerdere gesprekken. Gebruikers kunnen sessies teruglezen, verwijderen of nieuwe starten, wat zorgt voor een complete 'ChatGPT-achtige' ervaring.
 
-3. **Run the Development Server:**
-   ```bash
-   npm run dev
-   ```
-   Open [http://127.0.0.1:3000](http://127.0.0.1:3000) in your browser.
+### 3. Type Safety & Failsafes
+Het project gebruikt TypeScript door de gehele stack. De API utilities in `src/lib/spotify.ts` vangen fouten af (zoals het retryen van playlist creation als een profiel op privaat staat) en valideren input via Zod schema's binnen de AI tools om runtime errors te voorkomen.
 
-4. **Production Build Verification:**
-   ```bash
-   npm run build
-   ```
+### 4. Meertaligheid (Internationalization)
+Er is een naadloze EN/NL toggle geïmplementeerd. Niet alleen de interface vertaalt mee, maar ook de **system prompt** naar Gemini wordt dynamisch aangepast, zodat de AI antwoordt in de gekozen taal van de gebruiker.
 
 ---
 
-## ✨ Design Philosophy
+## ⚙️ Installatie & Setup
 
-- **Premium Feel:** Curated dark palette (`bg-neutral-950`) accented with Emerald green (`spotify`) and deep Purple neon highlights.
-- **Dynamic Feedback:** Subtle spinning disk icon on the header and floating gradient background blobs create a responsive, living interface.
-- **Zero Placeholders:** Active Spotify API integrations load actual user details to give a genuine production-ready feel from the very first step.
+1.  **Kloon de repository:**
+    ```bash
+    git clone https://github.com/stiemsdev/sonic-intelligence-system.git
+    cd sonic-intelligence-system
+    ```
+
+2.  **Installeer dependencies:**
+    Gebruik `pnpm` voor de installatie:
+    ```bash
+    pnpm install
+    ```
+
+3.  **Configureer Environment Variables:**
+    Maak een `.env.local` bestand aan in de root en vul de volgende variabelen in:
+    ```env
+    SPOTIFY_CLIENT_ID="jouw_spotify_client_id"
+    SPOTIFY_CLIENT_SECRET="jouw_spotify_client_secret"
+    GOOGLE_GENERATIVE_AI_API_KEY="jouw_gemini_api_key"
+    NEXTAUTH_SECRET="een_willekeurige_geheime_string"
+    NEXTAUTH_URL="http://127.0.0.1:3000"
+    ```
+
+4.  **Draai de Development Server:**
+    ```bash
+    pnpm dev
+    ```
+    Bezoek vervolgens [http://127.0.0.1:3000](http://127.0.0.1:3000).
+
+> [!IMPORTANT]
+> **Redirect URI:** Gebruik specifiek `http://127.0.0.1:3000` in plaats van `localhost` in de Spotify Developer Dashboard instellingen. Spotify's OAuth validation is stabieler op het directe IP loopback-adres dan op de localhost hostname.
+
+---
+
+## 📝 Reflectie & Pragmatische Keuzes
+
+Tijdens deze ontwikkeling binnen het tijdspan van het assessment is de nadruk gelegd op de balans tussen 'AI-creativiteit' en 'technische robuustheid':
+*   **Modelkeuze:** Hoewel Flash extreem snel is, biedt Gemini 2.5 Pro net die extra laag finesse in het volgen van complexe tool-calling instructies (zoals het chainen van Playlist creation zonder tussenstop), wat de UX naar een hoger plan tilt.
+*   **Referrer Policy:** Een praktisch detail is toegevoegd aan de `<img />` tags van album covers (`referrerPolicy="no-referrer"`), aangezien Spotify's CDN soms afbeeldingen blokkeert bij requests vanaf localhost omwille van CORS-policy issues.
+*   **Zero-Maintenance Backend:** Door gebruik te maken van de Next.js API routes en de Vercel AI SDK, is er geen aparte server nodig; de volledige orchestration gebeurt via Serverless/Edge constructies.
+
+---
+
+## 📄 Licentie
+
+Dit project valt onder de [MIT License](LICENSE).
+
