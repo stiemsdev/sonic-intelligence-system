@@ -379,6 +379,7 @@ function SessionsPanel({
   onDelete,
   onClose,          // optional: used by the mobile overlay to close itself
   lang,
+  onSetLang,        // optional callback to change language from the drawer
 }: {
   sessions: ChatSession[];
   currentId: string;
@@ -387,7 +388,9 @@ function SessionsPanel({
   onDelete: (id: string) => void;
   onClose?: () => void;
   lang: "en" | "nl";
+  onSetLang?: (l: "en" | "nl") => void;
 }) {
+  const { data: session } = useSession();
   const groups = groupSessionsByDate(sessions);
 
   return (
@@ -444,6 +447,32 @@ function SessionsPanel({
           ))
         )}
       </div>
+
+      {/* Mobile Footer: visible inside drawer, hides in desktop sidebar layout */}
+      {session && (
+        <div className="md:hidden p-3 border-t border-white/5 bg-neutral-900/50 space-y-3 flex-shrink-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              {session.user?.image
+                ? <img src={session.user.image} alt="" className="w-6 h-6 rounded-full border border-white/10" referrerPolicy="no-referrer" />
+                : <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center"><User className="w-3 h-3 text-neutral-500" /></div>}
+              <span className="text-xs font-bold text-neutral-200 truncate">{session.user?.name ?? "Explorer"}</span>
+            </div>
+            {onSetLang && (
+              <div className="flex bg-neutral-800 p-0.5 rounded-lg border border-white/5 flex-shrink-0">
+                <button onClick={() => onSetLang("en")} className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all cursor-pointer ${lang === "en" ? "bg-emerald-500 text-black" : "text-neutral-500 hover:text-white"}`}>EN</button>
+                <button onClick={() => onSetLang("nl")} className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all cursor-pointer ${lang === "nl" ? "bg-emerald-500 text-black" : "text-neutral-500 hover:text-white"}`}>NL</button>
+              </div>
+            )}
+          </div>
+          
+          <button onClick={() => signOut()}
+            className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-neutral-400 hover:text-red-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer">
+            <LogOut className="w-3.5 h-3.5" />
+            {translations[lang].signOut}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -558,7 +587,7 @@ function ChatArea({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={translations[lang].inputPlaceholder}
-            className="flex-grow bg-white/5 hover:bg-white/7 focus:bg-white/10 border border-white/5 focus:border-emerald-500/30 px-4 py-3 rounded-xl text-xs text-neutral-100 placeholder-neutral-500 outline-none transition-all"
+            className="flex-grow min-w-0 bg-white/5 hover:bg-white/7 focus:bg-white/10 border border-white/5 focus:border-emerald-500/30 px-4 py-3 rounded-xl text-xs text-neutral-100 placeholder-neutral-500 outline-none transition-all"
             disabled={isLoading}
           />
           <button type="submit" disabled={isLoading || !input.trim()}
@@ -735,8 +764,8 @@ export default function Home() {
 
           {/* Right: language toggle + profile + sign out */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Language Selector */}
-            <div className="flex bg-white/5 p-0.5 rounded-full border border-white/5 flex-shrink-0">
+            {/* Language Selector — desktop only */}
+            <div className="hidden md:flex bg-white/5 p-0.5 rounded-full border border-white/5 flex-shrink-0">
               <button
                 onClick={() => handleSetLang("en")}
                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
@@ -767,13 +796,13 @@ export default function Home() {
                   </span>
                 </div>
 
-                {/* Sign out — always visible */}
+                {/* Sign out — hidden on mobile, handled by drawer footer */}
                 <button
                   onClick={() => signOut()}
-                  className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-neutral-400 hover:text-white bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all"
+                  className="hidden md:flex group items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-neutral-400 hover:text-white bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 transition-all"
                 >
                   <LogOut className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  <span className="hidden sm:inline">{translations[lang].signOut}</span>
+                  <span className="hidden lg:inline">{translations[lang].signOut}</span>
                 </button>
               </>
             )}
@@ -843,6 +872,7 @@ export default function Home() {
                 onNew={handleNew}
                 onDelete={handleDelete}
                 lang={lang}
+                onSetLang={handleSetLang}
               />
             </div>
 
@@ -1014,6 +1044,7 @@ export default function Home() {
               onDelete={handleDelete}
               onClose={() => setShowMobileSessions(false)}
               lang={lang}
+              onSetLang={handleSetLang}
             />
           </div>
         </div>
