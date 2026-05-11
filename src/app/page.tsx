@@ -46,11 +46,28 @@ interface SpotifyTrack {
   uri: string;
 }
 
+interface SpotifyArtist {
+  id: string;
+  name: string;
+  images: { url: string }[];
+  external_urls: { spotify: string };
+  genres: string[];
+}
+
+interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  images: { url: string }[];
+  external_urls: { spotify: string };
+  owner: { display_name: string };
+  tracks: { total: number };
+}
+
 const translations = {
   en: {
     appTitle: "Sonic Intelligence",
     aiChat: "AI Chat",
-    myStats: "My Stats",
+    myStats: "Sonic Profile",
     signOut: "Sign Out",
     welcomeTitle: "Discover Music Through Natural Conversation",
     welcomeDesc: "Connect your Spotify account to experience an immersive music curator powered by Gemini 2.5 Pro. No more static filters — just talk to your music.",
@@ -63,9 +80,15 @@ const translations = {
     howListen: "How would you like to listen today?",
     ambientExample: '"Ambient acoustic guitar for focusing", "Songs similar to what I listen to", or "A high-energy workout playlist".',
     inputPlaceholder: "Vibe check? Ask Gemini to curate your soundtrack…",
-    insightsTitle: "Your Spotify Insights",
-    insightsDesc: "Fetched via user-top-read scope",
-    backToCuration: "Back to AI Conversational Curation",
+    insightsTitle: "Your Sonic Profile",
+    insightsDesc: "A neural reflection of your musical taste directly from Spotify.",
+    topTracks: "Top Tracks",
+    topArtists: "Top Artists",
+    myPlaylists: "Library Collections",
+    shortTerm: "Last 4 Weeks",
+    mediumTerm: "Last 6 Months",
+    longTerm: "All Time",
+    backToCuration: "Back to AI Curation",
     syncingSpotify: "Syncing with Spotify…",
     syncingSearch: "Syncing with Spotify Search…",
     playlistCreated: "Playlist Created!",
@@ -77,7 +100,7 @@ const translations = {
   nl: {
     appTitle: "Sonic Intelligence",
     aiChat: "AI Chat",
-    myStats: "Mijn Statistieken",
+    myStats: "Sonisch Profiel",
     signOut: "Uitloggen",
     welcomeTitle: "Ontdek muziek via natuurlijk gesprek",
     welcomeDesc: "Verbind je Spotify-account en ervaar een meeslepende muziekcurator aangedreven door Gemini 2.5 Pro. Geen statische filters meer — praat gewoon met je muziek.",
@@ -90,9 +113,15 @@ const translations = {
     howListen: "Hoe wil je vandaag luisteren?",
     ambientExample: '"Akoestische ambient gitaar om te focussen", "Nummers die lijken op wat ik luister", of "Een energieke afspeellijst voor het sporten".',
     inputPlaceholder: "Vibe check? Vraag Gemini om je soundtrack te cureren…",
-    insightsTitle: "Jouw Spotify Inzichten",
-    insightsDesc: "Opgehaald via de user-top-read scope",
-    backToCuration: "Terug naar AI Conversatie-Curation",
+    insightsTitle: "Jouw Sonische Profiel",
+    insightsDesc: "Een neurale weerspiegeling van je muzikale smaak rechtstreeks van Spotify.",
+    topTracks: "Top Nummers",
+    topArtists: "Top Artiesten",
+    myPlaylists: "Bibliotheek Collecties",
+    shortTerm: "Afgelopen 4 weken",
+    mediumTerm: "Afgelopen 6 maanden",
+    longTerm: "Alles tijd",
+    backToCuration: "Terug naar AI Curation",
     syncingSpotify: "Synchroniseren met Spotify…",
     syncingSearch: "Synchroniseren met Spotify Zoeken…",
     playlistCreated: "Afspeellijst aangemaakt!",
@@ -217,6 +246,24 @@ function ToolInvocationPart({ part, lang }: { part: any; lang: "en" | "nl" }) {
           {output.tracks?.map((track: SpotifyTrack) => (
             <TrackCard key={track.id} track={track} />
           ))}
+        </div>
+      );
+    }
+
+    if (toolName === "getTopArtists") {
+      return (
+        <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+          <Check className="w-3.5 h-3.5" />
+          <span>{lang === "nl" ? "Jouw favoriete artiesten meegenomen in analyse" : "Analyzed your top artists for context"}</span>
+        </div>
+      );
+    }
+
+    if (toolName === "getUserPlaylists") {
+      return (
+        <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+          <Check className="w-3.5 h-3.5" />
+          <span>{lang === "nl" ? "Bestaande collecties en genres gescand" : "Scanned existing collections and styles"}</span>
         </div>
       );
     }
@@ -484,6 +531,23 @@ function ChatArea({
             </div>
           ))
         )}
+        {isLoading && (
+          <div className="flex flex-col items-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-none px-4 py-3.5 flex items-center gap-4 glow-purple/20 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-purple-500/5 to-transparent animate-pulse" />
+              <div className="flex items-end gap-[3px] h-3.5 relative z-10">
+                <div className="w-0.5 h-3 bg-emerald-400 rounded-full animate-audio-wave" style={{ animationDelay: '0ms' }} />
+                <div className="w-0.5 h-4 bg-purple-400 rounded-full animate-audio-wave" style={{ animationDelay: '150ms' }} />
+                <div className="w-0.5 h-2.5 bg-blue-400 rounded-full animate-audio-wave" style={{ animationDelay: '300ms' }} />
+                <div className="w-0.5 h-4 bg-emerald-400 rounded-full animate-audio-wave" style={{ animationDelay: '450ms' }} />
+                <div className="w-0.5 h-3 bg-purple-400 rounded-full animate-audio-wave" style={{ animationDelay: '600ms' }} />
+              </div>
+              <span className="text-[10px] font-black tracking-widest uppercase bg-gradient-to-r from-emerald-400 via-purple-400 to-blue-400 bg-clip-text text-transparent relative z-10">
+                {lang === "nl" ? "Signaal Verwerken..." : "Synthesizing..."}
+              </span>
+            </div>
+          </div>
+        )}
         <div ref={chatEndRef} />
       </div>
 
@@ -513,7 +577,10 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<"chat" | "stats">("chat");
   const [topTracks, setTopTracks] = useState<SpotifyTrack[]>([]);
-  const [loadingTracks, setLoadingTracks] = useState(false);
+  const [topArtists, setTopArtists] = useState<SpotifyArtist[]>([]);
+  const [userPlaylists, setUserPlaylists] = useState<SpotifyPlaylist[]>([]);
+  const [timeRange, setTimeRange] = useState<"short_term" | "medium_term" | "long_term">("medium_term");
+  const [loadingStats, setLoadingStats] = useState(false);
 
   // Bilingual state ("en" | "nl"), persists to localStorage or default to "en"
   const [lang, setLang] = useState<"en" | "nl">("en");
@@ -572,20 +639,45 @@ export default function Home() {
     });
   }, [currentSessionId]);
 
-  useEffect(() => {
-    if (session?.accessToken) fetchTopTracks(session.accessToken);
-  }, [session]);
-
-  const fetchTopTracks = async (token: string) => {
-    setLoadingTracks(true);
+  const fetchStats = useCallback(async (token: string, range: string) => {
+    setLoadingStats(true);
     try {
-      const res = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=8", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) { const data = await res.json(); setTopTracks(data.items ?? []); }
-    } catch (err) { console.error("[fetchTopTracks]", err); }
-    finally { setLoadingTracks(false); }
-  };
+      const [tracksRes, artistsRes, playlistsRes] = await Promise.all([
+        fetch(`https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=${range}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`https://api.spotify.com/v1/me/top/artists?limit=10&time_range=${range}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`https://api.spotify.com/v1/me/playlists?limit=10`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ]);
+
+      if (tracksRes.ok) {
+        const data = await tracksRes.json();
+        setTopTracks(data.items ?? []);
+      }
+      if (artistsRes.ok) {
+        const data = await artistsRes.json();
+        setTopArtists(data.items ?? []);
+      }
+      if (playlistsRes.ok) {
+        const data = await playlistsRes.json();
+        setUserPlaylists(data.items ?? []);
+      }
+    } catch (err) {
+      console.error("[fetchStats]", err);
+    } finally {
+      setLoadingStats(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (session?.accessToken) {
+      fetchStats(session.accessToken, timeRange);
+    }
+  }, [session?.accessToken, timeRange, fetchStats]);
 
   const currentSession = sessions.find((s) => s.id === currentSessionId);
 
@@ -759,38 +851,125 @@ export default function Home() {
               {activeTab === "stats" ? (
 
                 /* Stats */
-                <div className="glass-card rounded-2xl p-5 flex-grow flex flex-col overflow-y-auto">
-                  <h3 className="text-lg font-bold mb-1 flex items-center gap-2 flex-shrink-0">
-                    <Compass className="w-5 h-5 text-emerald-400" /> {translations[lang].insightsTitle}
-                  </h3>
-                  <p className="text-xs text-neutral-400 mb-5 flex-shrink-0">
-                    {lang === "nl" ? "Opgehaald via " : "Fetched via "} <code className="text-neutral-300 bg-neutral-900 px-1 rounded">user-top-read</code> scope
-                  </p>
-                  {loadingTracks ? (
-                    <div className="flex-grow flex items-center justify-center">
-                      <RefreshCw className="w-6 h-6 text-neutral-400 animate-spin" />
+                <div className="glass-card rounded-2xl p-5 flex-grow flex flex-col overflow-y-auto custom-scrollbar">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 flex-shrink-0">
+                    <div>
+                      <h3 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-emerald-400" /> {translations[lang].insightsTitle}
+                      </h3>
+                      <p className="text-xs text-neutral-400 mt-1">
+                        {translations[lang].insightsDesc}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="grid sm:grid-cols-2 gap-3 flex-grow content-start">
-                      {topTracks.map((track, i) => (
-                        <a key={track.id} href={track.external_urls.spotify} target="_blank" rel="noreferrer"
-                          className="group flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/7 border border-white/5 hover:border-white/10 transition-all">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className="text-xs font-extrabold text-neutral-500 group-hover:text-emerald-400 transition-colors w-4 flex-shrink-0">{i + 1}</span>
-                            <AlbumArt images={track.album?.images} name={track.name} size={10} />
-                            <div className="text-left min-w-0">
-                              <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">{track.name}</p>
-                              <p className="text-[10px] text-neutral-400 line-clamp-1">{track.artists.map((a) => a.name).join(", ")}</p>
-                            </div>
-                          </div>
-                          <ExternalLink className="w-3.5 h-3.5 text-neutral-500 group-hover:text-neutral-300 transition-colors flex-shrink-0 ml-2" />
-                        </a>
+                    
+                    {/* Time range selector */}
+                    <div className="flex bg-white/5 p-1 rounded-lg border border-white/5 text-[10px] font-bold">
+                      {(["short_term", "medium_term", "long_term"] as const).map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => setTimeRange(r)}
+                          className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                            timeRange === r
+                              ? "bg-emerald-500 text-black shadow-sm"
+                              : "text-neutral-400 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          {r === "short_term"
+                            ? translations[lang].shortTerm
+                            : r === "medium_term"
+                            ? translations[lang].mediumTerm
+                            : translations[lang].longTerm}
+                        </button>
                       ))}
                     </div>
+                  </div>
+
+                  {loadingStats ? (
+                    <div className="flex-grow flex flex-col items-center justify-center gap-3 text-neutral-500">
+                      <RefreshCw className="w-8 h-8 animate-spin text-emerald-400" />
+                      <span className="text-xs animate-pulse">Synthesizing audio insights...</span>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow content-start">
+                      {/* Top Artists */}
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 px-1">
+                          {translations[lang].topArtists}
+                        </h4>
+                        <div className="space-y-2">
+                          {topArtists.map((artist, i) => (
+                            <a key={artist.id} href={artist.external_urls.spotify} target="_blank" rel="noreferrer"
+                              className="group flex items-center gap-3 p-2 rounded-xl bg-white/3 hover:bg-white/7 border border-white/5 hover:border-white/10 transition-all">
+                              <span className="text-[10px] font-black text-neutral-600 group-hover:text-emerald-400 transition-colors w-4 text-center flex-shrink-0">{i + 1}</span>
+                              <div className="relative w-10 h-10 flex-shrink-0 rounded-full overflow-hidden border border-white/10">
+                                {artist.images?.[0]?.url ? (
+                                  <img src={artist.images[artist.images.length - 1].url} alt={artist.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                                ) : (
+                                  <div className="w-full h-full bg-neutral-800 flex items-center justify-center"><User className="w-4 h-4 text-neutral-500" /></div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-grow">
+                                <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{artist.name}</p>
+                                <p className="text-[9px] text-neutral-500 truncate capitalize">{(artist.genres || []).slice(0, 2).join(" • ")}</p>
+                              </div>
+                              <ExternalLink className="w-3 h-3 text-neutral-600 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all mr-2" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Top Tracks */}
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 px-1">
+                          {translations[lang].topTracks}
+                        </h4>
+                        <div className="space-y-2">
+                          {topTracks.map((track, i) => (
+                            <a key={track.id} href={track.external_urls.spotify} target="_blank" rel="noreferrer"
+                              className="group flex items-center gap-3 p-2 rounded-xl bg-white/3 hover:bg-white/7 border border-white/5 hover:border-white/10 transition-all">
+                              <span className="text-[10px] font-black text-neutral-600 group-hover:text-emerald-400 transition-colors w-4 text-center flex-shrink-0">{i + 1}</span>
+                              <AlbumArt images={track.album?.images} name={track.name} size={10} />
+                              <div className="min-w-0 flex-grow">
+                                <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{track.name}</p>
+                                <p className="text-[9px] text-neutral-500 truncate">{(track.artists || []).map(a => a.name).join(", ")}</p>
+                              </div>
+                              <ExternalLink className="w-3 h-3 text-neutral-600 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all mr-2" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Playlists */}
+                      <div className="space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 px-1">
+                          {translations[lang].myPlaylists}
+                        </h4>
+                        <div className="space-y-2">
+                          {userPlaylists.map((playlist) => (
+                            <a key={playlist.id} href={playlist.external_urls.spotify} target="_blank" rel="noreferrer"
+                              className="group flex items-center gap-3 p-2 rounded-xl bg-white/3 hover:bg-white/7 border border-white/5 hover:border-white/10 transition-all">
+                              <div className="relative w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden border border-white/10">
+                                {playlist.images?.[0]?.url ? (
+                                  <img src={playlist.images[0].url} alt={playlist.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                                ) : (
+                                  <div className="w-full h-full bg-neutral-800 flex items-center justify-center"><Music className="w-4 h-4 text-neutral-500" /></div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-grow">
+                                <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors truncate">{playlist.name}</p>
+                                <p className="text-[9px] text-neutral-500 truncate">{playlist.tracks?.total || 0} tracks • {playlist.owner?.display_name}</p>
+                              </div>
+                              <ExternalLink className="w-3 h-3 text-neutral-600 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all mr-2" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   )}
+                  
                   <button onClick={() => setActiveTab("chat")}
-                    className="mt-5 flex-shrink-0 w-full py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-semibold transition-all cursor-pointer">
-                    {translations[lang].backToCuration}
+                    className="mt-6 flex-shrink-0 w-full py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-2">
+                    <MessageSquare className="w-3.5 h-3.5" /> {translations[lang].backToCuration}
                   </button>
                 </div>
 
