@@ -60,7 +60,7 @@ PLAYLIST FLOW (execute all steps without asking for confirmation):
         getTopTracks: tool({
           description: "Fetch the user's actual top Spotify tracks. MUST be called when user asks about their taste, history, or favourite songs — never guess from memory.",
           inputSchema: z.object({
-            limit: z.number().default(10).describe("Number of tracks to fetch (max 20)."),
+            limit: z.number().int().min(1).max(50).default(10).describe("Number of tracks to fetch (1-50)."),
           }),
           execute: async ({ limit }) => {
             try {
@@ -77,7 +77,7 @@ PLAYLIST FLOW (execute all steps without asking for confirmation):
           description: "Search Spotify for real, playable tracks. MUST be called for every music recommendation request — never suggest tracks without calling this tool first.",
           inputSchema: z.object({
             query: z.string().describe("Search query, e.g. 'ambient lofi study' or 'upbeat 80s synthwave'."),
-            limit: z.number().default(8).describe("Number of tracks to return (max 20)."),
+            limit: z.number().int().min(1).max(50).default(8).describe("Number of tracks to return (1-50)."),
           }),
           execute: async ({ query, limit }) => {
             try {
@@ -98,8 +98,7 @@ PLAYLIST FLOW (execute all steps without asking for confirmation):
           }),
           execute: async ({ name, description }) => {
             try {
-              const profile = await spotify.getProfile(accessToken);
-              const playlist = await spotify.createPlaylist(accessToken, profile.id, name, description);
+              const playlist = await spotify.createPlaylist(accessToken, name, description);
               return { playlistId: playlist.id, url: playlist.external_urls.spotify, name };
             } catch (error: any) {
               console.error("[createPlaylist]", error.message);

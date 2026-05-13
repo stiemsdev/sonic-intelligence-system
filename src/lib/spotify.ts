@@ -76,13 +76,12 @@ export async function searchTracks(accessToken: string, query: string, limit = 1
  */
 export async function createPlaylist(
   accessToken: string,
-  userId: string,
   name: string,
   description = "Created by Sonic Intelligence System AI"
 ): Promise<{ id: string; external_urls: { spotify: string } }> {
   try {
     return await spotifyFetch<{ id: string; external_urls: { spotify: string } }>(
-      `/users/${userId}/playlists`,
+      "/me/playlists",
       accessToken,
       {
         method: "POST",
@@ -96,7 +95,7 @@ export async function createPlaylist(
   } catch (error) {
     console.warn("[createPlaylist] Failed with public: true, retrying with public: false...", error);
     return await spotifyFetch<{ id: string; external_urls: { spotify: string } }>(
-      `/users/${userId}/playlists`,
+      "/me/playlists",
       accessToken,
       {
         method: "POST",
