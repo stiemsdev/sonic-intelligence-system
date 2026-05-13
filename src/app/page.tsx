@@ -14,7 +14,7 @@ import {
   type ChatSession,
 } from "@/lib/chatHistory";
 
-import type { SpotifyTrack } from "@/types/spotify";
+import type { SpotifyTrack, SpotifyArtist, SpotifyPlaylist } from "@/types/spotify";
 import { translations } from "@/lib/translations";
 
 import { Header } from "@/components/layout/Header";
@@ -28,7 +28,10 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<"chat" | "stats">("chat");
   const [topTracks, setTopTracks] = useState<SpotifyTrack[]>([]);
-  const [loadingTracks, setLoadingTracks] = useState(false);
+  const [topArtists, setTopArtists] = useState<SpotifyArtist[]>([]);
+  const [userPlaylists, setUserPlaylists] = useState<SpotifyPlaylist[]>([]);
+  const [timeRange, setTimeRange] = useState<"short_term" | "medium_term" | "long_term">("medium_term");
+  const [loadingStats, setLoadingStats] = useState(false);
 
   // Bilingual state ("en" | "nl"), persists to localStorage or default to "en"
   const [lang, setLang] = useState<"en" | "nl">("en");
@@ -98,29 +101,46 @@ export default function Home() {
     [currentSessionId]
   );
 
-  useEffect(() => {
-    // Check if token exists on NextAuth session object.
-    // casting required since session object custom properties
-    const token = (session as any)?.accessToken;
-    if (token) fetchTopTracks(token);
-  }, [session]);
-
-  const fetchTopTracks = async (token: string) => {
-    setLoadingTracks(true);
+  const fetchStats = useCallback(async (token: string, range: string) => {
+    setLoadingStats(true);
     try {
-      const res = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=8", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const [tracksRes, artistsRes, playlistsRes] = await Promise.all([
+        fetch(`https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=${range}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`https://api.spotify.com/v1/me/top/artists?limit=10&time_range=${range}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`https://api.spotify.com/v1/me/playlists?limit=10`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ]);
+
+      if (tracksRes.ok) {
+        const data = await tracksRes.json();
         setTopTracks(data.items ?? []);
       }
+      if (artistsRes.ok) {
+        const data = await artistsRes.json();
+        setTopArtists(data.items ?? []);
+      }
+      if (playlistsRes.ok) {
+        const data = await playlistsRes.json();
+        setUserPlaylists(data.items ?? []);
+      }
     } catch (err) {
-      console.error("[fetchTopTracks]", err);
+      console.error("[fetchStats]", err);
     } finally {
-      setLoadingTracks(false);
+      setLoadingStats(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = (session as any)?.accessToken;
+    if (token) {
+      fetchStats(token, timeRange);
+    }
+  }, [session, timeRange, fetchStats]);
 
   const currentSession = sessions.find((s) => s.id === currentSessionId);
 
@@ -175,8 +195,12 @@ export default function Home() {
             <div className="col-span-1 md:col-span-3 min-h-0 flex flex-col">
               {activeTab === "stats" ? (
                 <StatsPanel
-                  loadingTracks={loadingTracks}
+                  loadingStats={loadingStats}
                   topTracks={topTracks}
+                  topArtists={topArtists}
+                  userPlaylists={userPlaylists}
+                  timeRange={timeRange}
+                  onTimeRangeChange={setTimeRange}
                   lang={lang}
                   onBackToChat={() => setActiveTab("chat")}
                 />

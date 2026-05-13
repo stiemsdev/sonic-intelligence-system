@@ -61,6 +61,20 @@ export async function getTopTracks(accessToken: string, limit = 10): Promise<{ i
 }
 
 /**
+ * Get the current user's top artists
+ */
+export async function getTopArtists(accessToken: string, limit = 10): Promise<{ items: any[] }> {
+  return spotifyFetch<{ items: any[] }>(`/me/top/artists?limit=${limit}`, accessToken);
+}
+
+/**
+ * Get the current user's playlists
+ */
+export async function getUserPlaylists(accessToken: string, limit = 20): Promise<{ items: any[] }> {
+  return spotifyFetch<{ items: any[] }>(`/me/playlists?limit=${limit}`, accessToken);
+}
+
+/**
  * Search tracks by query
  */
 export async function searchTracks(accessToken: string, query: string, limit = 10): Promise<{ tracks: { items: SpotifyTrack[] } }> {

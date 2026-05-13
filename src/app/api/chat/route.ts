@@ -41,8 +41,9 @@ Every recommendation MUST come from calling a tool. If you have not called a too
 
 TOOL CALL MANDATE:
 - User asks for music of ANY kind → call findMusic immediately, before writing any text.
-- User asks about their own taste → call getTopTracks immediately.
+- User asks about their taste or past library → call BOTH getTopTracks AND getTopArtists, optionally getUserPlaylists if you need total coverage.
 - User wants a playlist → call findMusic (if needed), then createPlaylist, then addTracksToPlaylist in sequence without pausing.
+- If User says "based on my tastes" or similar → you must FIRST fetch their top content, analyze the results internally, and THEN call findMusic to search for recommendations.
 
 AFTER a tool returns results, write 1–2 sentences of atmosphere or emotional context in plain prose.
 
@@ -58,7 +59,7 @@ PLAYLIST FLOW (execute all steps without asking for confirmation):
 4. Write a short closing sentence.`,
       tools: {
         getTopTracks: tool({
-          description: "Fetch the user's actual top Spotify tracks. MUST be called when user asks about their taste, history, or favourite songs — never guess from memory.",
+          description: "Fetch the user's actual top Spotify tracks. MUST be called when user asks about their taste, history, or favourite songs.",
           inputSchema: z.object({
             limit: z.number().int().min(1).max(50).default(10).describe("Number of tracks to fetch (1-50)."),
           }),
@@ -69,6 +70,38 @@ PLAYLIST FLOW (execute all steps without asking for confirmation):
             } catch (error: any) {
               console.error("[getTopTracks]", error.message);
               return { error: error.message ?? "Failed to fetch top tracks" };
+            }
+          },
+        }),
+        
+        getTopArtists: tool({
+          description: "Fetch the user's top artists. Great for getting overarching genre context of the user's profile.",
+          inputSchema: z.object({
+            limit: z.number().default(10).describe("Number of artists to fetch (max 20)."),
+          }),
+          execute: async ({ limit }) => {
+            try {
+              const data = await spotify.getTopArtists(accessToken, limit);
+              return { artists: data.items };
+            } catch (error: any) {
+              console.error("[getTopArtists]", error.message);
+              return { error: error.message ?? "Failed to fetch top artists" };
+            }
+          },
+        }),
+
+        getUserPlaylists: tool({
+          description: "Fetch a summary list of the user's library collections (playlists). Useful to identify themes they already follow.",
+          inputSchema: z.object({
+            limit: z.number().default(15).describe("Number of playlists to fetch."),
+          }),
+          execute: async ({ limit }) => {
+            try {
+              const data = await spotify.getUserPlaylists(accessToken, limit);
+              return { playlists: data.items };
+            } catch (error: any) {
+              console.error("[getUserPlaylists]", error.message);
+              return { error: error.message ?? "Failed to fetch user playlists" };
             }
           },
         }),

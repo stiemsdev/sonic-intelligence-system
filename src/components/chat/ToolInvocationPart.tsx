@@ -56,6 +56,24 @@ export function ToolInvocationPart({ part, lang }: ToolInvocationPartProps) {
       );
     }
 
+    if (toolName === "getTopArtists") {
+      return (
+        <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+          <Check className="w-3.5 h-3.5" />
+          <span>{lang === "nl" ? "Jouw favoriete artiesten meegenomen in analyse" : "Analyzed your top artists for context"}</span>
+        </div>
+      );
+    }
+
+    if (toolName === "getUserPlaylists") {
+      return (
+        <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+          <Check className="w-3.5 h-3.5" />
+          <span>{lang === "nl" ? "Bestaande collecties en genres gescand" : "Scanned existing collections and styles"}</span>
+        </div>
+      );
+    }
+
     if (toolName === "createPlaylist") {
       return (
         <div className="mt-3.5 bg-purple-500/10 border border-purple-500/20 p-3.5 rounded-xl text-[11px] space-y-2">

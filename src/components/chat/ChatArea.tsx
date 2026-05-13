@@ -92,6 +92,23 @@ export function ChatArea({
             </div>
           ))
         )}
+        {isLoading && (
+          <div className="flex flex-col items-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-none px-4 py-3.5 flex items-center gap-4 glow-purple/20 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-purple-500/5 to-transparent animate-pulse" />
+              <div className="flex items-end gap-[3px] h-3.5 relative z-10">
+                <div className="w-0.5 h-3 bg-emerald-400 rounded-full animate-audio-wave" style={{ animationDelay: '0ms' }} />
+                <div className="w-0.5 h-4 bg-purple-400 rounded-full animate-audio-wave" style={{ animationDelay: '150ms' }} />
+                <div className="w-0.5 h-2.5 bg-blue-400 rounded-full animate-audio-wave" style={{ animationDelay: '300ms' }} />
+                <div className="w-0.5 h-4 bg-emerald-400 rounded-full animate-audio-wave" style={{ animationDelay: '450ms' }} />
+                <div className="w-0.5 h-3 bg-purple-400 rounded-full animate-audio-wave" style={{ animationDelay: '600ms' }} />
+              </div>
+              <span className="text-[10px] font-black tracking-widest uppercase bg-gradient-to-r from-emerald-400 via-purple-400 to-blue-400 bg-clip-text text-transparent relative z-10">
+                {lang === "nl" ? "Signaal Verwerken..." : "Synthesizing..."}
+              </span>
+            </div>
+          </div>
+        )}
         <div ref={chatEndRef} />
       </div>
 
